@@ -6,8 +6,8 @@ import re
 def remove_tags(current_tags_list: List[str], tags_to_remove: List[str]) -> List[str]:
     """The logic to remove tags, this takes care of lowercases and special chars."""
     lowercase_tags = [tags.lower() for tags in current_tags_list]
-    flushed_tags = [re.sub("[-_]", " ",  tags) for tags in lowercase_tags]
-    flushed_tags_to_remove = [re.sub("[-_]", "",  tags) for tags in tags_to_remove]
+    flushed_tags = [re.sub("[-_ ]", "",  tags) for tags in lowercase_tags]
+    flushed_tags_to_remove = [re.sub("[-_ ]", "",  tags) for tags in tags_to_remove]
     print(flushed_tags_to_remove)
 
 
@@ -32,6 +32,6 @@ def edit_tags(current_tags: str, tags_to_add: Optional[List[str]] =None, tags_to
     return tags
 
 current_tags = "bags, pillow"
-tags_to_add = ["RuBber"]
-tags_to_remove = ["rubbe_r"]
+tags_to_add = ["RuBber bird"]
+tags_to_remove = ["rubbe r"]
 print(edit_tags(current_tags=current_tags, tags_to_add=tags_to_add, tags_to_remove=tags_to_remove))
