@@ -23,3 +23,7 @@ class PaymentRequiredException(ProductResourceException):
 class UnprocessableEntityException(ProductResourceException):
     """Unprocessable Entity."""
     status_code = 422
+
+class ClientErrorException(ProductResourceException):
+    """Client Error."""
+    status_code = 400

@@ -1,11 +1,11 @@
 import os
 import time
-from typing import Any
+from typing import Any, List
 from urllib.error import HTTPError
 from dotenv import load_dotenv
 
 import shopify
-from second_exercise.exceptions import NotFoundException, ProductResourceException, UnAuthorizedException, UnprocessableEntityException, ForbiddenException
+from second_exercise.exceptions import ClientErrorException, NotFoundException, ProductResourceException, UnAuthorizedException, UnprocessableEntityException, ForbiddenException
 from pyactiveresource.connection import ResourceNotFound, ServerError, ResourceInvalid, UnauthorizedAccess, ForbiddenAccess, ClientError
 
 load_dotenv()
@@ -16,37 +16,35 @@ shop_url = f"https://{API_KEY}:{PASSWORD}@able-test1.myshopify.com/admin/api/202
 shopify.ShopifyResource.set_site(shop_url)
 
 
-# Print info from the first product
-# api_product = shopify.Product.count()
-# print(shopify.ShopifyResource.connection.response.code)
-# print(api_product)
-# print(api_product.title)
-# print(api_product.to_dict())
 
-# # Retrive the first couple product variants
-# for api_variant in shopify.Variant.find(limit=5):
-#     print(api_variant)
-
-
-
-def api_call_with_retry(api_product: Any, product_id: int, **kwargs: Any) -> Any:
+def api_call_with_retry(api_product: shopify.Product.find, product_id: int = None, **kwargs: Any) -> Any:
+    """This calls shopify Product.find() and retry if rate limit is hit"""
     retry_count = 0
     num_of_tries = int(os.getenv('RETRY_NUM', 5))
     while retry_count < num_of_tries:
         try:
-            product = api_product(product_id, **kwargs)
+            if product_id:
+                product = api_product(product_id, **kwargs)
+            else:
+                product = api_product(**kwargs)
             return product
         except ResourceNotFound as e:
+            # 404
             raise NotFoundException(e)
         except ServerError as e:
+            # 5xx
             raise ProductResourceException(e)
         except ResourceInvalid as e:
+            # 422
             raise UnprocessableEntityException(e)
         except ForbiddenAccess as e:
+            # 403
             raise ForbiddenException(e)
         except UnauthorizedAccess as e:
+            # 401
             raise UnAuthorizedException(e)
         except ClientError as e:
+            # 4xx
             response = shopify.ShopifyResource.connection.response
             if response.code == 429:
                 # get the seconds to retry
@@ -55,13 +53,20 @@ def api_call_with_retry(api_product: Any, product_id: int, **kwargs: Any) -> Any
                 time.sleep(float(retry_after))
                 retry_count+=1
                 continue
+            else:
+                raise ClientErrorException(e)
     else:
-        raise ClientError(response.msg)
-
-# print(api_call_with_retry(shopify.Product.find, 4459014226001))
+        raise ClientErrorException(response.msg)
 
 
-
-
-# for i in range(100):
-#     print(shopify.Variant.find(30111927631953))
+def api_iterator(product_function: shopify.Product, **kwargs: Any) -> List:
+    page_info = ''
+    products = []
+    while True:
+        products.extend(api_call_with_retry(product_function.find, limit=250, page_info=page_info))
+        cursor = shopify.ShopifyResource.connection.response.headers.get('Link')
+        if cursor and 'next' in cursor:
+            page_info = cursor.split(';')[-2].strip('<>').split('page_info=')[1]
+        else:
+            break
+    return products
