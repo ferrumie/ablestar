@@ -34,6 +34,10 @@
         API_KEY="shopify api key"
         PASSWORD="shopify password"
     ```
+- Build up the package using 
+    ``` 
+    python setup.py install
+    ```
 
 The Three Exercises are Packed in Three different folders
 - first_exercise

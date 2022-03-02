@@ -82,4 +82,3 @@ def api_iterator(product_function: shopify.Product, **kwargs: Any) -> List:
         else:
             break
     return products
-
