@@ -1,4 +1,3 @@
-import re
 import shopify
 import sys
 import os
