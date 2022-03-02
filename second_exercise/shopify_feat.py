@@ -1,7 +1,6 @@
 import os
 import time
 from typing import Any, List
-from urllib.error import HTTPError
 from dotenv import load_dotenv
 
 import shopify
@@ -83,3 +82,4 @@ def api_iterator(product_function: shopify.Product, **kwargs: Any) -> List:
         else:
             break
     return products
+

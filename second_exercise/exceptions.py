@@ -4,37 +4,37 @@ class ProductResourceException(BaseException):
     status_code = 500
 
 
-class NotFoundException(ProductResourceException):
+class NotFoundException(BaseException):
     """Resource Not Found."""
 
     status_code = 404
 
 
-class UnAuthorizedException(ProductResourceException):
+class UnAuthorizedException(BaseException):
     """Not Authorized."""
 
     status_code = 401
 
 
-class ForbiddenException(ProductResourceException):
+class ForbiddenException(BaseException):
     """Request Forbidden."""
 
     status_code = 403
 
 
-class PaymentRequiredException(ProductResourceException):
+class PaymentRequiredException(BaseException):
     """Payment Required."""
 
     status_code = 402
 
 
-class UnprocessableEntityException(ProductResourceException):
+class UnprocessableEntityException(BaseException):
     """Unprocessable Entity."""
 
     status_code = 422
 
 
-class ClientErrorException(ProductResourceException):
+class ClientErrorException(BaseException):
     """Client Error."""
 
     status_code = 400
