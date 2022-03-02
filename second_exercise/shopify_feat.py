@@ -5,8 +5,22 @@ from urllib.error import HTTPError
 from dotenv import load_dotenv
 
 import shopify
-from second_exercise.exceptions import ClientErrorException, NotFoundException, ProductResourceException, UnAuthorizedException, UnprocessableEntityException, ForbiddenException
-from pyactiveresource.connection import ResourceNotFound, ServerError, ResourceInvalid, UnauthorizedAccess, ForbiddenAccess, ClientError
+from second_exercise.exceptions import (
+    ClientErrorException,
+    NotFoundException,
+    ProductResourceException,
+    UnAuthorizedException,
+    UnprocessableEntityException,
+    ForbiddenException,
+)
+from pyactiveresource.connection import (
+    ResourceNotFound,
+    ServerError,
+    ResourceInvalid,
+    UnauthorizedAccess,
+    ForbiddenAccess,
+    ClientError,
+)
 
 load_dotenv()
 API_KEY = os.getenv('API_KEY')
@@ -14,7 +28,6 @@ PASSWORD = os.getenv('PASSWORD')
 
 shop_url = f"https://{API_KEY}:{PASSWORD}@able-test1.myshopify.com/admin/api/2021-07"
 shopify.ShopifyResource.set_site(shop_url)
-
 
 
 def api_call_with_retry(api_product: shopify.Product.find, product_id: int = None, **kwargs: Any) -> Any:
@@ -51,7 +64,7 @@ def api_call_with_retry(api_product: shopify.Product.find, product_id: int = Non
                 retry_after = response.headers['Retry-After']
                 # sleep
                 time.sleep(float(retry_after))
-                retry_count+=1
+                retry_count += 1
                 continue
             else:
                 raise ClientErrorException(e)

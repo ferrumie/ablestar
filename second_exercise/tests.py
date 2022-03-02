@@ -7,10 +7,15 @@ from pyactiveresource.activeresource import ActiveResource
 from pyactiveresource.testing import http_fake
 from second_exercise.shopify_feat import api_call_with_retry, api_iterator
 from unittest.mock import patch
-from second_exercise.exceptions import ClientErrorException, NotFoundException, ProductResourceException, UnAuthorizedException
+from second_exercise.exceptions import (
+    ClientErrorException,
+    NotFoundException,
+    ProductResourceException,
+    UnAuthorizedException,
+)
+
 
 class TestShopifyProduct(TestCase):
-
     def setUp(self):
         ActiveResource.site = None
         ActiveResource.headers = None
@@ -28,7 +33,6 @@ class TestShopifyProduct(TestCase):
     def load_fixture(self, name, format="json"):
         with open(os.path.dirname(__file__) + "/fixtures/%s.%s" % (name, format), "rb") as f:
             return f.read()
-
 
     def fake(self, endpoint, **kwargs):
         body = kwargs.pop("body", None) or self.load_fixture(endpoint)
@@ -73,13 +77,13 @@ class TestShopifyProduct(TestCase):
         self.fake("products/632910391", body=self.load_fixture("product"), code=404)
         with self.assertRaises(NotFoundException):
             product = api_call_with_retry(shopify.Product.find, 632910391)
-        
+
         # 401
         self.fake("products/632910391", body=self.load_fixture("product"), code=401)
         with self.assertRaises(UnAuthorizedException):
             product = api_call_with_retry(shopify.Product.find, 632910391)
-        
-        #test a general client error
+
+        # test a general client error
         self.fake("products/632910391", body=self.load_fixture("product"), code=400)
         with self.assertRaises(ClientErrorException):
             product = api_call_with_retry(shopify.Product.find, 632910391)
@@ -90,7 +94,9 @@ class TestShopifyProduct(TestCase):
             product = api_call_with_retry(shopify.Product.find, 632910391)
 
         # test retry after 429
-        self.fake("products/632910391", body=self.load_fixture("product"), code=429, response_headers={'Retry-After': 1})
+        self.fake(
+            "products/632910391", body=self.load_fixture("product"), code=429, response_headers={'Retry-After': 1}
+        )
         with self.assertRaises(ClientErrorException):
             with patch('time.sleep', return_value=None) as patch_sleep:
                 product = api_call_with_retry(shopify.Product.find, 632910391)
@@ -99,14 +105,15 @@ class TestShopifyProduct(TestCase):
 
     def test_api_iterator(self):
         response_header = {
-           "Link": '<https://able-test1.myshopify.com/admin/api/2021-07/products.json?limit=250&page_info=kk>; rel="previous", <https://able-test1.myshopify.com/admin/api/2021-07/products.json?limit=250&page_info=jj>; rel="bbb"'
+            "Link": '<https://able-test1.myshopify.com/admin/api/2021-07/products.json?limit=250&page_info=kk>; rel="previous", <https://able-test1.myshopify.com/admin/api/2021-07/products.json?limit=250&page_info=jj>; rel="bbb"'
         }
-        self.fake("products.json?limit=250", extension=False, method="GET", body=self.load_fixture("product"), response_headers=response_header)
+        self.fake(
+            "products.json?limit=250",
+            extension=False,
+            method="GET",
+            body=self.load_fixture("product"),
+            response_headers=response_header,
+        )
 
         product = api_iterator(shopify.Product)
         self.assertEqual(len(product), 1)
-
-
-
-
-    
