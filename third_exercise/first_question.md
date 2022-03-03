@@ -14,7 +14,6 @@ If i notice that memory usage on some Docker containers occasionally spikes thes
 - Check up if logs and other static files are being stored in the containers and prune them if they are
 
 - I will run `docker stats` to confirm what containers are taking up memory, and the amount of memory it takes.
-- 
 - If container memory limit has not been set, I will set up memory and CPU limits, this can prevent the containers from using all the available memories and affecting the rest. 
 ```
     docker run --cpus=2 -m 512m
